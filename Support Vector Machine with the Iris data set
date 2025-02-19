@@ -1,0 +1,54 @@
+# Import necessary libraries
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+from sklearn import datasets
+from sklearn.model_selection import train_test_split
+from sklearn.svm import SVC
+from sklearn.metrics import confusion_matrix, classification_report, accuracy_score
+
+# Load Iris dataset
+iris = datasets.load_iris()
+X = iris.data
+y = iris.target
+target_names = iris.target_names
+
+# Create DataFrame for data exploration
+df = pd.DataFrame(X, columns=iris.feature_names)
+df['species'] = y
+df['species'] = df['species'].map({0: target_names[0], 1: target_names[1], 2: target_names[2]})
+
+# Visualize the dataset
+sns.pairplot(df, hue='species', palette='viridis')
+plt.suptitle("Iris Dataset Feature Relationships", y=1.02)
+plt.show()
+
+# Split dataset into training and testing sets
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)
+
+# Create and train SVM classifier
+svm_classifier = SVC(kernel='linear', C=1.0, random_state=42)
+svm_classifier.fit(X_train, y_train)
+
+# Make predictions
+y_pred = svm_classifier.predict(X_test)
+
+# Evaluate model performance
+accuracy = accuracy_score(y_test, y_pred)
+print(f"Accuracy: {accuracy:.2f}\n")
+
+# Confusion matrix
+cm = confusion_matrix(y_test, y_pred)
+plt.figure(figsize=(6,4))
+sns.heatmap(cm, annot=True, fmt='d', cmap='Blues', 
+            xticklabels=target_names, 
+            yticklabels=target_names)
+plt.title('Confusion Matrix')
+plt.ylabel('True Label')
+plt.xlabel('Predicted Label')
+plt.show()
+
+# Classification report
+print("Classification Report:")
+print(classification_report(y_test, y_pred, target_names=target_names))
